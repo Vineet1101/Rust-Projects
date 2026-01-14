@@ -1,18 +1,69 @@
 #![allow(unused_variables)]
-use std::env;
-use std::fs;
-use std::process::ExitCode;
+use std::{env, process::ExitCode};
+mod scanner;
+mod token_type;
+use crate::scanner::ScanError;
 
+pub mod lox {
+    use crate::scanner::{self, ScanError};
+    use crate::token_type::Literal;
+    use std::fs;
 
-fn error(unexpected_char:char){
-    eprintln!("[line 1] Error: Unexpected character: {}",unexpected_char)
+    static HAD_ERROR: bool = false;
+    pub fn error(line: u32, message: char) {
+        report(1, &"".to_string(), message)
+    }
+
+    fn report(line: u32, whr: &String, message: char) {
+        eprintln!("[line {line}] Error: Unexpected character: {}", message)
+    }
+
+    pub fn run_file(path: &String) -> Result<(), Vec<ScanError>> {
+        if HAD_ERROR {}
+        let file_contents = fs::read_to_string(path).expect("Failed to read the file");
+        run(file_contents)
+    }
+
+    fn run(source: String) -> Result<(), Vec<ScanError>> {
+        let mut scanner = scanner::Scanner::new(source);
+        let (tokens, errors) = scanner.scan_tokens();
+
+        for tkn in tokens {
+            let token_typ = tkn.token_type;
+            let lexeme = tkn.lexeme;
+            match tkn.literal {
+                Some(val) => match val {
+                    Literal::Number(val) => {
+                        if val.fract() == 0.0 {
+                            println!("{:?} {} {:.1}", token_typ, lexeme, val);
+                        } else {
+                            println!("{:?} {} {}", token_typ, lexeme, val);
+                        }
+                    }
+                    Literal::String(val) => {
+                        println!("{:?} {} {}", token_typ, lexeme, val);
+                    }
+                    Literal::Nil => {}
+                },
+                None => {
+                    println!("{:?} {} null", token_typ, lexeme);
+                }
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
+    }
 }
 
-fn main()->ExitCode {
+fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         eprintln!("Usage: {} tokenize <filename>", args[0]);
-        return ExitCode::FAILURE;
+        return ExitCode::from(64);
     }
 
     let command = &args[1];
@@ -20,53 +71,29 @@ fn main()->ExitCode {
 
     match command.as_str() {
         "tokenize" => {
-            // You can use print statements as follows for debugging, they'll be visible when running tests.
             eprintln!("Logs from your program will appear here!");
-
-            let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| {
-                eprintln!("Failed to read file {}", filename);
-                String::new()
-            });
-
-            if !file_contents.is_empty() {
-                eprintln!("{file_contents}");
-                let mut flag=false;
-                for chr in file_contents.chars(){
-                    match chr{
-                        '('=>{println!("LEFT_PAREN ( null");}
-                        ')'=>{println!("RIGHT_PAREN ) null");}
-                        '{'=>{println!("LEFT_BRACE {{ null");}
-                        '}'=>{println!("RIGHT_BRACE }} null");}
-                        ','=>{println!("COMMA , null");}
-                        '.'=>{println!("DOT . null")}
-                        '+'=>{println!("PLUS + null");}
-                        '-'=>{println!("MINUS - null");}
-                        '*'=>{println!("STAR * null");}
-                        ';'=>{println!("SEMICOLON ; null");}
-                        '='=>{
-                            
-                        }
-                        _=>{
-                            error(chr);
-                            flag=true;
+            match lox::run_file(filename) {
+                Ok(_) => ExitCode::SUCCESS,
+                Err(errors) => {
+                    // eprintln!("{:#?}",err);
+                    for err in errors {
+                        match err {
+                            ScanError::UnexpectedCharacter { line, ch } => {
+                                eprintln!("[line {}] Error: Unexpected character: {}", line, ch);
+                            }
+                            ScanError::UnterminatedString { line } => {
+                                eprintln!("[line {}] Error: Unterminated string.", line);
+                            }
                         }
                     }
+                    ExitCode::from(65)
                 }
-
-                if !flag {
-                    println!("EOF  null");
-                    return ExitCode::SUCCESS}
-                else {
-                    println!("EOF  null");
-                    return ExitCode::from(65);}
-            } else {
-                println!("EOF  null");
-                return ExitCode::SUCCESS
             }
         }
+
         _ => {
             eprintln!("Unknown command: {}", command);
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
     }
 }
