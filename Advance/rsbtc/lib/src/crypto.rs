@@ -1,6 +1,7 @@
-use ecdsa::{Signature as ECDSASignature, SigningKey, VerifyingKey, signature::Signer};
+use ecdsa::{Signature as ECDSASignature, SigningKey, VerifyingKey};
 use k256::Secp256k1;
 use serde::{Deserialize, Serialize};
+use rand_core::OsRng;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 
@@ -35,11 +36,12 @@ mod signkey_serde {
     }
 }
 
-impl PrivateKey{
-    pub fn new_key()->Self{
-        PrivateKey(SigningKey::random(&mut rand::thread_rng()))
+impl PrivateKey {
+    pub fn new_key() -> Self {
+        // PrivateKey(SigningKey::random(&mut 0sRng))
+        PrivateKey(SigningKey::random(&mut OsRng))
     }
-    pub fn public_key(&self)->PublicKey{
+    pub fn public_key(&self) -> PublicKey {
         PublicKey(self.0.verifying_key().clone())
     }
 }

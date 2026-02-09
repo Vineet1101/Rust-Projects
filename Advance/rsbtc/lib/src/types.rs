@@ -1,10 +1,11 @@
 use crate::U256;
 use crate::crypto::{PublicKey, Signature};
+use crate::sha256::Hash;
+use crate::util::MerkleRoot;
+use crate::error::{BtcError,Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::util::MerkleRoot;
-use crate::sha256::Hash;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Blockchain {
@@ -16,8 +17,15 @@ impl Blockchain {
         Blockchain { blocks: vec![] }
     }
 
-    pub fn add_block(&mut self, block: Block) {
+    pub fn add_block(&mut self, block: Block)->Result<()> {
+        if self.blocks.is_empty(){
+            if block.header.prev_block_hash!=Hash::zero(){
+                println!("zero hash");
+                return Err(BtcError::InvalidBlock);
+            }
+        }
         self.blocks.push(block);
+        Ok(())
     }
 }
 
@@ -72,7 +80,7 @@ impl BlockHeader {
     }
 
     pub fn hash(&self) -> Hash {
-       Hash::hash(self)
+        Hash::hash(self)
     }
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -83,7 +91,7 @@ pub struct Transaction {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TransactionInput {
-    pub prev_transaction_output_hash:Hash,
+    pub prev_transaction_output_hash: Hash,
     pub signature: Signature,
 }
 
