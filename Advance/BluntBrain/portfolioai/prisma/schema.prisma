@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User{
+  id        String         @id @default(cuid())
+  clerkId   String         @unique
+  email     String         @unique
+  cashUSD   Decimal        @default(100000)
+  createdAt DateTime       @default(now())
+
+
+  watchlist   WatchlistItem[]
+  trades      Trade[]
+  analyses    AIAnalysis[]
+}
+
+
+model WatchlistItem{
+  id        String        @id @default(cuid())
+  ticker    String        
+  note      String?
+  createdAt DateTime      @default(now())
+
+  userId    String
+  user      User          @relation(fields: [userId],references:[id],onDelete:Cascade)
+
+  @@unique([userId,ticker])
+}
+
+model Trade{
+  id         String        @id @default(cuid())
+  ticker     String        
+  side       String
+  shares     Decimal
+  priceUSD   Decimal
+  createdAt  DateTime       @default(now())
+
+  userId     String
+  user       User           @relation(fields: [userId],references: [id],onDelete: Cascade)
+}
+
+
+model AIAnalysis{
+  id        String          @id @default(cuid())
+  ticker    String
+  bullCase  String
+  bearCase  String
+  riskScore Int
+  createdAt DateTime        @default(now())
+
+  userId    String
+  user      User            @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  @@index([userId,ticker,createdAt])
+
+}
