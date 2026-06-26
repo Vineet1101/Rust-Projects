@@ -1,0 +1,12 @@
+[package]
+name = "counter_program"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+borsh = "1.7.0"
+solana-program = "2.2.0"
+
+
+[lib]
+crate-type=["cdylib","lib"]
