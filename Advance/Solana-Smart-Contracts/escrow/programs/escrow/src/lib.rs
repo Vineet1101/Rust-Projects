@@ -18,12 +18,12 @@ pub mod escrow {
     }
 
     pub fn take(ctx:Context<Take>)->Result<()>{
-        instructions::take(ctx);
+        instructions::take::handler(ctx);
         Ok(())
     }
 
     pub fn refund(ctx:Context<Refund>)->Result<()>{
-        instructions::refund(ctx);
+        instructions::refund::handler(ctx);
         Ok(())
     }
 }
