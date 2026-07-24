@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{token_2022::{TransferChecked, close_account, transfer_checked}, token_interface::{Mint, TokenAccount, TokenInterface}};
+use anchor_spl::{associated_token::AssociatedToken,token_2022::{CloseAccount, TransferChecked, close_account, transfer_checked}, token_interface::{Mint, TokenAccount, TokenInterface}};
 
 use crate::state::Escrow;
 
