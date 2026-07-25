@@ -7,7 +7,7 @@ use anchor_lang::prelude::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("BpJapcebzXJctnLYYaG4fJrdDD7L8wXZ3vzKmmJh3RpS");
+declare_id!("BSY9hxuBeATfDyhPgr1i9LPvQvN7A7yDqfMnNfSnocca");
 
 #[program]
 pub mod escrow {
@@ -18,12 +18,12 @@ pub mod escrow {
     }
 
     pub fn take(ctx:Context<Take>)->Result<()>{
-        instructions::take::handler(ctx);
+        instructions::take::take(ctx);
         Ok(())
     }
 
     pub fn refund(ctx:Context<Refund>)->Result<()>{
-        instructions::refund::handler(ctx);
+        instructions::refund::refund(ctx);
         Ok(())
     }
 }

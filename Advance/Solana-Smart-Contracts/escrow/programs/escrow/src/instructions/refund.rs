@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token_2022::{CloseAccount, TransferChecked, transfer_checked}, token_interface::{Mint, TokenAccount,close_account}};
+use anchor_spl::{associated_token::AssociatedToken, token_2022::{CloseAccount, TransferChecked, transfer_checked}, token_interface::{Mint, TokenAccount,close_account,TokenInterface}};
 
 use crate::state::Escrow;
 
@@ -41,7 +41,7 @@ pub struct Refund<'info>{
 
 
 
-pub fn handler(ctx:Context<Refund>)->Result<()>{
+pub fn refund(ctx:Context<Refund>)->Result<()>{
 
     //Transfering token a from vault to maker
     let cpi_accounts=TransferChecked{
@@ -62,7 +62,7 @@ pub fn handler(ctx:Context<Refund>)->Result<()>{
 
     let cpi_context=CpiContext::new_with_signer(ctx.accounts.token_program.key(), cpi_accounts, &signer_seeds);
 
-    transfer_checked(cpi_context, ctx.accounts.vault.amount, ctx.accounts.mint_a.decimals);
+    transfer_checked(cpi_context, ctx.accounts.vault.amount, ctx.accounts.mint_a.decimals)?;
 
     let cpi_accounts=CloseAccount{
         account:ctx.accounts.vault.to_account_info(),
@@ -72,7 +72,7 @@ pub fn handler(ctx:Context<Refund>)->Result<()>{
 
     let cpi_context=CpiContext::new_with_signer(ctx.accounts.token_program.key(), cpi_accounts, &signer_seeds);
 
-    close_account(cpi_context);
+    close_account(cpi_context)?;
 
     
 

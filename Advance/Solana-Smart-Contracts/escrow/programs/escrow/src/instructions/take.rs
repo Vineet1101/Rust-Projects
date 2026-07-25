@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken,token_2022::{CloseAccount, TransferChecked, close_account, transfer_checked}, token_interface::{Mint, TokenAccount, TokenInterface}};
+use anchor_spl::{associated_token::AssociatedToken,token_2022::{ TransferChecked, transfer_checked}, token_interface::{CloseAccount,Mint, TokenAccount, TokenInterface,close_account}};
 
 use crate::state::Escrow;
 
@@ -21,7 +21,7 @@ pub struct Take<'info>{
         has_one=mint_a,
         has_one=mint_b,
         close=maker,
-        seeds=[b"escrow".as_ref(),maker.key().as_ref(),seed.to_le_bytes().as_ref()],
+        seeds=[b"escrow".as_ref(),maker.key().as_ref(),escrow.seed.to_le_bytes().as_ref()],
         bump=escrow.bump
     )]
     pub escrow:Account<'info,Escrow>,
@@ -73,7 +73,7 @@ pub struct Take<'info>{
 
 
 
-pub fn handler(ctx:Context<Take>)->Result<()>{
+pub fn take(ctx:Context<Take>)->Result<()>{
 
     //Transfering tokens b from taker to maker. 
     // Simple CPI call is needed
@@ -85,14 +85,14 @@ pub fn handler(ctx:Context<Take>)->Result<()>{
     };
 
     let cpi_context=CpiContext::new(ctx.accounts.token_program.key(),cpi_accounts);
-    transfer_checked(cpi_context, ctx.accounts.escrow.receive_amount, ctx.accounts.mint_b.decimals);
+    transfer_checked(cpi_context, ctx.accounts.escrow.receive_amount, ctx.accounts.mint_b.decimals)?;
 
     //Transfering tokens a from valut to taker
     // Since valut owner is a escrow PDA so we need to sign the txn on behalf of escrow
     let seeds=&[
         b"escrow",
         ctx.accounts.maker.to_account_info().key.as_ref(),
-        &ctx.accounts.escrow.seed.to_be_bytes()[..],
+        &ctx.accounts.escrow.seed.to_le_bytes()[..],
         &[ctx.accounts.escrow.bump]
     ];
 
@@ -106,7 +106,7 @@ pub fn handler(ctx:Context<Take>)->Result<()>{
 
     let cpi_context=CpiContext::new_with_signer(ctx.accounts.token_program.key(), cpi_accounts, &signer_seeds);
     
-    transfer_checked(cpi_context, ctx.accounts.vault.amount, ctx.accounts.mint_a.decimals);
+    transfer_checked(cpi_context, ctx.accounts.vault.amount, ctx.accounts.mint_a.decimals)?;
 
     let cpi_accounts=CloseAccount{
         account:ctx.accounts.vault.to_account_info(),
@@ -115,6 +115,6 @@ pub fn handler(ctx:Context<Take>)->Result<()>{
     };
 
     let cpi_context=CpiContext::new_with_signer(ctx.accounts.token_program.key(), cpi_accounts, &signer_seeds);
-    close_account(cpi_context);
+    close_account(cpi_context)?;
     Ok(())
 }
