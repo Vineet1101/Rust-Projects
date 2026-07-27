@@ -14,4 +14,8 @@ pub mod prediction_market{
     pub fn create_market(ctx:Context<CreateMarket>,market_id:u64,question:String,resolution_time:i64)->Result<()>{
         instructions::create_market::handler(ctx, market_id,question,resolution_time)
     }
+
+    pub fn place_bet(ctx:Context<>)->Result<()>{
+        instructions::place_bet::handler()
+    }
 }

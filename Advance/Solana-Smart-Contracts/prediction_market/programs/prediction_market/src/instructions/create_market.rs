@@ -14,7 +14,7 @@ pub struct CreateMarket<'info>{
         init,
         payer=creator,
         space=8+Market::INIT_SPACE,
-        seeds=[b"market",creator.key.as_ref(),&market_id.to_le_bytes()],
+        seeds=[b"market",creator.key().as_ref(),&market_id.to_le_bytes()],
         bump
     )]
     pub market:Account<'info,Market>,
