@@ -6,5 +6,11 @@ pub enum MarketError {
     Overflow,
 
     #[msg("Resolution Time cannot be set to past")]
-    ResolutionTimeInPast
+    ResolutionTimeInPast,
+
+    #[msg("Bet Amount should be greater than 0")]
+    InvalidBetAmount,
+
+    #[msg("Market is closed bet cannot be placed")]
+    BettingClosed
 }
