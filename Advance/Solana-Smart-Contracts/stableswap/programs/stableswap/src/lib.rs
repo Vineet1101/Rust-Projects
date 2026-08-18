@@ -2,6 +2,9 @@ pub mod constants;
 pub mod error;
 pub mod instructions;
 pub mod state;
+pub mod math;
+pub mod oracle;
+pub mod dynamic_fees;
 
 use anchor_lang::prelude::*;
 
