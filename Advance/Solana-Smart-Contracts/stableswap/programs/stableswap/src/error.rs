@@ -23,7 +23,13 @@ pub enum StableSwapError {
 
     InsufficientLiquidity,
 
-    SingleSidedWithdrawalNotAllowed
+    SingleSidedWithdrawalNotAllowed,
+
+    InvalidOracleAccount,
+
+    InvalidOraclePrice,
+
+    StaleOraclePrice
 
     
 }

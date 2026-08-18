@@ -37,4 +37,4 @@ pub const ORACLE_TARGET_EXPONENT: i32 = -9;
 
 /// Default maximum age accepted for Pyth prices when the pool checks oracle
 /// health. The current state model does not store this value per pool.
-pub const DEFAULT_MAX_PRICE_AGE_SEC: u64 = 60;
+pub const DEFAULT_MAX_PRICE_AGE_SEC: u64 = 60; 
