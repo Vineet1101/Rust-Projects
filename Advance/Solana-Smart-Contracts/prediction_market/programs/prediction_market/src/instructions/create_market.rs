@@ -3,14 +3,14 @@ use anchor_lang::prelude::*;
 use crate::{constants::MAX_QUESTION_LEN, state::Market,error::*};
 
 #[derive(Accounts)]
-#[instruction(market_id:u64)]
+#[instruction(market_id:u64,question:String)]
 pub struct InitializeMarket<'info>{
     #[account(mut)]
     pub creator:Signer<'info>,
     
     #[account(
         init,
-        space=Market::INIT_SPACE,
+        space=8+Market::INIT_SPACE,
         payer=creator,
         seeds=[b"market",market.key.as_ref(),market_id.to_le_bytes().as_ref()],
         bump
